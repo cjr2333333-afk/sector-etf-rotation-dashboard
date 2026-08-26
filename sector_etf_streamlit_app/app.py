@@ -566,10 +566,13 @@ with allocation_tab:
         st.markdown(
             """
             <div class="note-box">
-            <b>Starting portfolio choices.</b> 100% SPY starts from a passive market benchmark.
-            Equal-weight sectors starts from the same weight in each sector ETF. 100% cash shows the entry trades
-            from no current market exposure. Already at target checks the steady-state portfolio when holdings
-            already match the model allocation.
+            <b>Starting portfolio choices.</b>
+            <ul>
+                <li><b>100% SPY:</b> Assumes you currently hold only SPY. The simulator shows how much of SPY would be sold and how much would be moved.</li>
+                <li><b>Equal-weight sectors:</b> Assumes you currently hold each sector ETF at the same weight, and shows how the model would rebalance from a diversified sector basket into its preferred sectors.</li>
+                <li><b>100% cash:</b> Assumes you currently hold no market exposure. This shows what the first entry trades would look like.</li>
+                <li><b>Already at target:</b> Assumes your portfolio already matches the model's recommended target allocation.</li>
+            </ul>
             </div>
             """,
             unsafe_allow_html=True,
