@@ -563,6 +563,17 @@ with allocation_tab:
             ["100% SPY", "Equal-weight sectors", "100% cash", "Already at target"],
             index=0,
         )
+        st.markdown(
+            """
+            <div class="note-box">
+            <b>Starting portfolio choices.</b> 100% SPY starts from a passive market benchmark.
+            Equal-weight sectors starts from the same weight in each sector ETF. 100% cash shows the entry trades
+            from no current market exposure. Already at target checks the steady-state portfolio when holdings
+            already match the model allocation.
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         turnover_limit = st.slider("One-way turnover limit", 5, 60, 30, 1)
         simulated = simulate_rebalance(portfolio, template, turnover_limit)
         raw_turnover = (simulated["target_weight"] - simulated["current_weight"]).abs().sum() / 2
