@@ -337,12 +337,27 @@ updated_at = refresh_state.get("prediction_updated_at") or refresh_state.get("da
 data_asof_date = refresh_state.get("data_asof_date", asof_date)
 last_monthly_retrain = refresh_state.get("last_monthly_retrain_at", "not available")
 next_monthly_retrain = refresh_state.get("next_monthly_retrain_due", "not scheduled")
+selected_tickers = target_diagnostics.get("selected_tickers", [])
+selected_ticker_text = ", ".join(selected_tickers) if selected_tickers else "No sector sleeve selected"
+target_allocation_text = ", ".join(
+    f"{row.asset} {pct(row.target_weight, 1)}"
+    for row in target_rows.sort_values("target_weight", ascending=False).itertuples()
+)
+final_allocation_text = ", ".join(
+    f"{row.asset} {pct(row.final_weight_after_trade_controls, 1)}"
+    for row in portfolio[portfolio["final_weight_after_trade_controls"].fillna(0) > 0]
+    .sort_values("final_weight_after_trade_controls", ascending=False)
+    .itertuples()
+)
+constraint_error_count = len(target_diagnostics.get("constraint_errors", []))
+constraint_error_text = (
+    "none"
+    if constraint_error_count == 0
+    else "; ".join(str(item) for item in target_diagnostics.get("constraint_errors", []))
+)
 
 st.title("Sector ETF Prediction Dashboard")
-st.caption(
-    "Standalone Streamlit app using the fixed Week 6/7 sector ETF versus SPY model outputs. "
-    f"Updated {today_local_str()} | last refresh: {updated_at} | price data as of {data_asof_date}."
-)
+st.caption(f"Updated {today_local_str()} | last refresh: {updated_at} | price data as of {data_asof_date}.")
 
 if auto_refresh_result.get("status") == "failed":
     st.warning("Automatic refresh failed. The dashboard is showing the newest saved output files.")
@@ -403,7 +418,7 @@ overview_tab, signals_tab, allocation_tab, comparison_tab, backtest_tab, archive
 
 with overview_tab:
     cols = st.columns(5)
-    cols[0].metric("Selected sectors", ", ".join(target_diagnostics["selected_tickers"]))
+    cols[0].metric("Selected sectors", selected_ticker_text)
     cols[1].metric("Sector exposure", pct(target_diagnostics["final_sector_exposure"], 1))
     cols[2].metric("Target volatility", pct(target_diagnostics["overlay"]["target_vol"], 1))
     cols[3].metric("Executed turnover", pct(trade_diagnostics["executed_one_way_turnover"], 1))
@@ -455,6 +470,17 @@ with overview_tab:
         ]
     ]
     st.dataframe(style_signal_table(summary), hide_index=True, width="stretch")
+    st.markdown(
+        """
+        <div class="note-box">
+        <b>Field definitions.</b> Threshold is the sector-specific probability cutoff required for a BUY signal.
+        Signal edge is the latest outperformance probability minus that threshold. Quality-adjusted edge score
+        combines the edge with model quality so stronger, more reliable signals rank higher. Test AUC measures
+        how well the model separated outperforming versus non-outperforming outcomes in validation; higher is better.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 with signals_tab:
     filtered = sector_rows.copy()
@@ -764,6 +790,16 @@ with notes_tab:
     st.markdown(
         f"""
         <div class="note-box">
+        <p><b>Current target allocation.</b> The model selected {selected_ticker_text}. The target allocation is
+        {target_allocation_text}. After turnover controls, the current executed allocation is {final_allocation_text}.</p>
+        <p><b>Sector exposure.</b> Sector exposure is the total target weight assigned to selected sector ETFs:
+        {pct(target_diagnostics["final_sector_exposure"], 1)}.</p>
+        <p><b>Target volatility.</b> The portfolio construction step targets approximately
+        {pct(target_diagnostics["overlay"]["target_vol"], 1)} annualized volatility before applying final trade controls.</p>
+        <p><b>Executed turnover.</b> Executed turnover is the one-way portfolio change after turnover scaling:
+        {pct(trade_diagnostics["executed_one_way_turnover"], 1)}.</p>
+        <p><b>Constraint errors.</b> Constraint errors report whether allocation rules were violated. Current count:
+        {constraint_error_count}; details: {constraint_error_text}.</p>
         <p><b>Signal definition.</b> BUY means the model predicts the sector ETF will outperform SPY by more
         than 1% over the next 21 trading days. It does not guarantee an absolute positive return.</p>
         <p><b>Latest data date.</b> The bundled output is based on data through {asof_date}. Refresh the Python
