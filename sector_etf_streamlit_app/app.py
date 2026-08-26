@@ -160,27 +160,11 @@ def run_auto_refresh_if_needed() -> dict:
     stale = monthly_due or state.get("prediction_updated_on") != today_local_str() or any(not path.exists() for path in required)
     if not stale or not REFRESH_SCRIPT.exists():
         return {"status": "fresh_or_unavailable", "state": state}
-    if st.session_state.get("auto_refresh_attempted"):
-        return {"status": "attempted_this_session", "state": state}
-
-    st.session_state["auto_refresh_attempted"] = True
-    with st.spinner("Refreshing market data and model predictions..."):
-        completed = subprocess.run(
-            [sys.executable, str(REFRESH_SCRIPT), "auto", "--no-backup"],
-            cwd=str(MODEL_DIR),
-            capture_output=True,
-            text=True,
-            timeout=3600,
-        )
-    st.cache_data.clear()
-    if completed.returncode != 0:
-        return {
-            "status": "failed",
-            "stdout": completed.stdout[-2000:],
-            "stderr": completed.stderr[-4000:],
-            "state": read_json_optional(STATE_PATH),
-        }
-    return {"status": "updated", "stdout": completed.stdout[-2000:], "state": read_json_optional(STATE_PATH)}
+    return {
+        "status": "stale_saved_outputs",
+        "state": state,
+        "message": "Saved model outputs are stale. The scheduled GitHub refresh or the manual Refresh now button can update them.",
+    }
 
 
 @st.cache_data(show_spinner=False)
@@ -416,6 +400,11 @@ if auto_refresh_result.get("status") == "failed":
     st.warning("Automatic refresh failed. The dashboard is showing the newest saved output files.")
     with st.expander("Refresh error details"):
         st.code(auto_refresh_result.get("stderr", "No stderr captured."))
+elif auto_refresh_result.get("status") == "stale_saved_outputs":
+    st.info(
+        "The dashboard is showing the newest saved model outputs. "
+        "Scheduled refresh or the sidebar Refresh now button can update the data."
+    )
 
 with st.sidebar:
     st.header("Dashboard controls")
