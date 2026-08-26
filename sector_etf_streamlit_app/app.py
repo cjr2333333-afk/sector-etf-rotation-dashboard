@@ -79,6 +79,26 @@ CUSTOM_CSS = """
         padding: 16px 18px;
         line-height: 1.55;
     }
+    .portfolio-radio-label {
+        color: #171a1f;
+        font-size: 1.12rem;
+        font-weight: 750;
+        margin: 0 0 0.35rem;
+    }
+    .portfolio-choice-note {
+        font-size: 1.04rem;
+        margin-top: 0.85rem;
+    }
+    .portfolio-choice-note ul {
+        margin: 0.6rem 0 0;
+        padding-left: 1.25rem;
+    }
+    .portfolio-choice-note li {
+        margin-bottom: 0.45rem;
+    }
+    div[data-testid="stRadio"] label p {
+        font-size: 1.03rem;
+    }
     .small-muted {
         color: #5d6673;
         font-size: 0.92rem;
@@ -558,14 +578,16 @@ with allocation_tab:
     st.subheader("Interactive rebalance simulator")
     sim_left, sim_right = st.columns([1, 2])
     with sim_left:
+        st.markdown('<div class="portfolio-radio-label">Starting portfolio</div>', unsafe_allow_html=True)
         template = st.radio(
             "Starting portfolio",
             ["100% SPY", "Equal-weight sectors", "100% cash", "Already at target"],
             index=0,
+            label_visibility="collapsed",
         )
         st.markdown(
             """
-            <div class="note-box">
+            <div class="note-box portfolio-choice-note">
             <b>Starting portfolio choices.</b>
             <ul>
                 <li><b>100% SPY:</b> Assumes you currently hold only SPY. The simulator shows how much of SPY would be sold and how much would be moved.</li>
