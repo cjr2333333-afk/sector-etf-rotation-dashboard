@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-06-09T06:31:34.110946",
+  "runtime_seconds": 144.6929841041565,
+  "rows_evaluated": 3240,
+  "horizons": [
+    21
+  ],
+  "scenarios": [
+    "full_keep",
+    "full_drop_fund",
+    "recent3_keep_engineered",
+    "recent3_age45_engineered",
+    "recent2_keep_engineered",
+    "recent3_price_engineered_top30",
+    "recent3_all_engineered_recency126_top30"
+  ],
+  "feature_profiles": [
+    "macro_numeric",
+    "macro_numeric+regime_tags",
+    "relative_technical+history_lags",
+    "sector_technical+spy_technical+relative_technical+history_lags",
+    "relative_technical+macro_numeric+regime_tags",
+    "sector_technical+spy_technical+relative_technical+history_lags+macro_numeric+sector_fundamentals+regime_tags+calendar+engineered_price"
+  ],
+  "outputs": [
+    "sector_outperformance_ensemble_all_results.csv",
+    "sector_outperformance_ensemble_best_by_sector.csv",
+    "sector_outperformance_ensemble_best_ensemble_by_sector.csv",
+    "sector_outperformance_ensemble_scenario_summary.csv",
+    "sector_outperformance_ensemble_report.md"
+  ]
+}

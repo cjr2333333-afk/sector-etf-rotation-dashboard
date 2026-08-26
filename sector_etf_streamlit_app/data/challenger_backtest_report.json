@@ -1,0 +1,19 @@
+{
+  "start_date": "2025-10-01",
+  "end_date": "2026-01-30",
+  "strategy_cagr": 0.19788855651564274,
+  "spy_cagr": 0.10931513137699866,
+  "equal_weight_sector_cagr": 0.17161775425352088,
+  "strategy_excess_cagr_vs_spy": 0.08857342513864408,
+  "strategy_ann_vol": 0.10604220926936611,
+  "strategy_sharpe": 1.5070236431795985,
+  "strategy_sortino": 1.9128065211699492,
+  "strategy_max_drawdown": 0.04588761379966444,
+  "spy_max_drawdown": 0.05071354632550418,
+  "equal_weight_sector_max_drawdown": 0.03805338258877777,
+  "cumulative_one_way_turnover": 1.1827814569536426,
+  "trade_count": 4,
+  "cost_drag_total_nav_pct": 0.0017741721854304638,
+  "scheduled_rebalances": 4,
+  "emergency_rebalances": 0
+}

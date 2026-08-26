@@ -1,0 +1,42 @@
+{
+  "target_diagnostics": {
+    "asof_date": "2026-08-25",
+    "selected_tickers": [
+      "XLI",
+      "XLE",
+      "XLV"
+    ],
+    "overlay": {
+      "target_vol": 0.12,
+      "force_cash": false,
+      "max_sector_exposure": 1.0,
+      "max_sector_count": 3,
+      "trigger_type": "TIME_BASED",
+      "triggers": []
+    },
+    "defensive_asset": "CASH",
+    "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
+    "defensive_asset_override": "SPY-only volatility 13.97% exceeded target 12.00%; cash used for unallocated risk budget.",
+    "risk_parity_weights": {
+      "XLI": 0.3903440855661949,
+      "XLE": 0.3175288658406942,
+      "XLV": 0.29212704859311095
+    },
+    "tilted_relative_weights": {
+      "XLI": 0.39866127300713505,
+      "XLE": 0.3171944470679911,
+      "XLV": 0.2841442799248739
+    },
+    "sector_exposure_after_vol_target": 1.0,
+    "final_sector_exposure": 0.85,
+    "constraint_errors": []
+  },
+  "trade_diagnostics": {
+    "raw_one_way_turnover": 1.0,
+    "allowed_one_way_turnover": 0.3,
+    "executed_one_way_turnover": 0.30000000000000004,
+    "turnover_scale_factor": 0.3,
+    "rolling_annual_turnover_before_trade": 0.0,
+    "trigger_type": "TIME_BASED"
+  }
+}
