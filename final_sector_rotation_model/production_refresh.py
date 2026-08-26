@@ -39,6 +39,8 @@ CHALLENGER_TRADES_CSV = OUTPUT_DIR / "challenger_backtest_trades.csv"
 CHALLENGER_REPORT_JSON = OUTPUT_DIR / "challenger_backtest_report.json"
 MODEL_COMPARISON_CSV = OUTPUT_DIR / "champion_vs_challenger_model_comparison.csv"
 SIGNAL_COMPARISON_CSV = OUTPUT_DIR / "champion_vs_challenger_latest_signals.csv"
+PROMOTION_DECISION_JSON = OUTPUT_DIR / "model_promotion_decision.json"
+PROMOTION_HISTORY_CSV = OUTPUT_DIR / "model_promotion_history.csv"
 
 SECTOR_TICKERS = champion.SECTOR_TICKERS
 SPY_TICKER = champion.SPY_TICKER
@@ -47,6 +49,18 @@ ALL_ASSETS = champion.ALL_ASSETS
 PRICE_TICKERS = [*SECTOR_TICKERS, SPY_TICKER]
 HORIZON = champion.HORIZON_TRADING_DAYS
 ACTIVE_RETURN_THRESHOLD = 0.01
+
+PROMOTION_CONFIG = {
+    "required_consecutive_passes": 2,
+    "min_validation_calendar_days": 90,
+    "min_rebalance_count": 3,
+    "min_cagr_advantage": 0.005,
+    "min_sharpe_advantage": 0.10,
+    "max_drawdown_penalty": 0.02,
+    "max_turnover_multiple": 1.25,
+    "max_turnover_absolute_penalty": 0.10,
+    "max_cost_drag_penalty": 0.005,
+}
 
 SECTOR_NAMES = {
     "XLB": "Materials",
@@ -807,6 +821,273 @@ def compare_backtest_reports() -> pd.DataFrame:
     return comparison
 
 
+def numeric(value: Any, default: float = np.nan) -> float:
+    try:
+        if value is None or pd.isna(value):
+            return default
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def bool_value(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"true", "1", "yes"}
+
+
+def promotion_check(name: str, passed: bool, observed: float, required: float, direction: str) -> dict[str, Any]:
+    return {
+        "name": name,
+        "passed": bool(passed),
+        "observed": None if pd.isna(observed) else float(observed),
+        "required": None if pd.isna(required) else float(required),
+        "direction": direction,
+    }
+
+
+def load_promotion_history() -> pd.DataFrame:
+    columns = [
+        "evaluated_at",
+        "evaluated_on",
+        "comparison_start_date",
+        "comparison_end_date",
+        "champion_strategy_cagr",
+        "challenger_strategy_cagr",
+        "cagr_advantage",
+        "champion_strategy_sharpe",
+        "challenger_strategy_sharpe",
+        "sharpe_advantage",
+        "champion_strategy_max_drawdown",
+        "challenger_strategy_max_drawdown",
+        "drawdown_penalty",
+        "champion_turnover",
+        "challenger_turnover",
+        "turnover_penalty",
+        "champion_cost_drag",
+        "challenger_cost_drag",
+        "cost_drag_penalty",
+        "validation_calendar_days",
+        "minimum_rebalance_count",
+        "promotion_gate_passed",
+        "active_model_after_check",
+        "promotion_status",
+    ]
+    if not PROMOTION_HISTORY_CSV.exists():
+        return pd.DataFrame(columns=columns)
+    return pd.read_csv(PROMOTION_HISTORY_CSV)
+
+
+def consecutive_promotion_passes(history: pd.DataFrame) -> int:
+    if history.empty or "promotion_gate_passed" not in history.columns:
+        return 0
+    ordered = history.copy()
+    ordered["comparison_end_date"] = pd.to_datetime(ordered["comparison_end_date"], errors="coerce")
+    ordered = ordered.dropna(subset=["comparison_end_date"]).sort_values(["comparison_end_date", "evaluated_at"])
+    count = 0
+    for _, row in ordered.iloc[::-1].iterrows():
+        if bool_value(row["promotion_gate_passed"]):
+            count += 1
+        else:
+            break
+    return count
+
+
+def promotion_state_updates(decision: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "active_model_role": decision.get("active_model_role", "champion"),
+        "active_model_name": decision.get("active_model_name", "robust_ensemble_champion"),
+        "model_promotion_status": decision.get("promotion_status"),
+        "model_promotion_summary": decision.get("promotion_summary"),
+        "last_model_promotion_check_at": decision.get("evaluated_at"),
+        "last_model_promotion_check_on": decision.get("evaluated_on"),
+        "promotion_gate_passed": decision.get("promotion_gate_passed"),
+        "promotion_consecutive_passes": decision.get("consecutive_passes"),
+        "promotion_required_consecutive_passes": decision.get("required_consecutive_passes"),
+    }
+
+
+def evaluate_model_promotion(model_comparison: pd.DataFrame) -> dict[str, Any]:
+    previous_state = read_state()
+    previous_active = previous_state.get("active_model_role", "champion")
+    if model_comparison.empty or set(model_comparison["model_role"]) < {"champion", "challenger"}:
+        decision = {
+            "evaluated_at": now_iso(),
+            "evaluated_on": today_str(),
+            "active_model_role": previous_active,
+            "active_model_name": "logistic_price_relative_challenger"
+            if previous_active == "challenger"
+            else "robust_ensemble_champion",
+            "promotion_status": "not_enough_comparison_data",
+            "promotion_summary": "Promotion was not evaluated because the champion/challenger comparison is incomplete.",
+            "promotion_gate_passed": False,
+            "consecutive_passes": 0,
+            "required_consecutive_passes": PROMOTION_CONFIG["required_consecutive_passes"],
+            "checks": [],
+            "config": PROMOTION_CONFIG,
+        }
+        PROMOTION_DECISION_JSON.write_text(json.dumps(decision, indent=2, default=str), encoding="utf-8")
+        return decision
+
+    champion_row = model_comparison[model_comparison["model_role"] == "champion"].iloc[0]
+    challenger_row = model_comparison[model_comparison["model_role"] == "challenger"].iloc[0]
+    start_date = pd.to_datetime(challenger_row.get("start_date"), errors="coerce")
+    end_date = pd.to_datetime(challenger_row.get("end_date"), errors="coerce")
+    validation_days = float((end_date - start_date).days) if pd.notna(start_date) and pd.notna(end_date) else np.nan
+
+    champion_cagr = numeric(champion_row.get("strategy_cagr"))
+    challenger_cagr = numeric(challenger_row.get("strategy_cagr"))
+    champion_sharpe = numeric(champion_row.get("strategy_sharpe"))
+    challenger_sharpe = numeric(challenger_row.get("strategy_sharpe"))
+    champion_drawdown = numeric(champion_row.get("strategy_max_drawdown"))
+    challenger_drawdown = numeric(challenger_row.get("strategy_max_drawdown"))
+    champion_turnover = numeric(champion_row.get("cumulative_one_way_turnover"))
+    challenger_turnover = numeric(challenger_row.get("cumulative_one_way_turnover"))
+    champion_cost = numeric(champion_row.get("cost_drag_total_nav_pct"), 0.0)
+    challenger_cost = numeric(challenger_row.get("cost_drag_total_nav_pct"), 0.0)
+    champion_trades = numeric(champion_row.get("trade_count"), 0.0)
+    challenger_trades = numeric(challenger_row.get("trade_count"), 0.0)
+    min_rebalance_count = min(champion_trades, challenger_trades)
+
+    cagr_advantage = challenger_cagr - champion_cagr
+    sharpe_advantage = challenger_sharpe - champion_sharpe
+    drawdown_penalty = challenger_drawdown - champion_drawdown
+    turnover_limit = champion_turnover * PROMOTION_CONFIG["max_turnover_multiple"] + PROMOTION_CONFIG["max_turnover_absolute_penalty"]
+    turnover_penalty = challenger_turnover - champion_turnover
+    cost_drag_penalty = challenger_cost - champion_cost
+
+    checks = [
+        promotion_check(
+            "Enough validation history",
+            validation_days >= PROMOTION_CONFIG["min_validation_calendar_days"],
+            validation_days,
+            PROMOTION_CONFIG["min_validation_calendar_days"],
+            "at_least",
+        ),
+        promotion_check(
+            "Enough rebalances",
+            min_rebalance_count >= PROMOTION_CONFIG["min_rebalance_count"],
+            min_rebalance_count,
+            PROMOTION_CONFIG["min_rebalance_count"],
+            "at_least",
+        ),
+        promotion_check(
+            "CAGR advantage",
+            cagr_advantage >= PROMOTION_CONFIG["min_cagr_advantage"],
+            cagr_advantage,
+            PROMOTION_CONFIG["min_cagr_advantage"],
+            "at_least",
+        ),
+        promotion_check(
+            "Sharpe advantage",
+            sharpe_advantage >= PROMOTION_CONFIG["min_sharpe_advantage"],
+            sharpe_advantage,
+            PROMOTION_CONFIG["min_sharpe_advantage"],
+            "at_least",
+        ),
+        promotion_check(
+            "Drawdown control",
+            drawdown_penalty <= PROMOTION_CONFIG["max_drawdown_penalty"],
+            drawdown_penalty,
+            PROMOTION_CONFIG["max_drawdown_penalty"],
+            "at_most",
+        ),
+        promotion_check(
+            "Turnover control",
+            challenger_turnover <= turnover_limit,
+            challenger_turnover,
+            turnover_limit,
+            "at_most",
+        ),
+        promotion_check(
+            "Cost drag control",
+            cost_drag_penalty <= PROMOTION_CONFIG["max_cost_drag_penalty"],
+            cost_drag_penalty,
+            PROMOTION_CONFIG["max_cost_drag_penalty"],
+            "at_most",
+        ),
+    ]
+    gate_passed = all(check["passed"] for check in checks)
+
+    history = load_promotion_history()
+    record = {
+        "evaluated_at": now_iso(),
+        "evaluated_on": today_str(),
+        "comparison_start_date": str(challenger_row.get("start_date")),
+        "comparison_end_date": str(challenger_row.get("end_date")),
+        "champion_strategy_cagr": champion_cagr,
+        "challenger_strategy_cagr": challenger_cagr,
+        "cagr_advantage": cagr_advantage,
+        "champion_strategy_sharpe": champion_sharpe,
+        "challenger_strategy_sharpe": challenger_sharpe,
+        "sharpe_advantage": sharpe_advantage,
+        "champion_strategy_max_drawdown": champion_drawdown,
+        "challenger_strategy_max_drawdown": challenger_drawdown,
+        "drawdown_penalty": drawdown_penalty,
+        "champion_turnover": champion_turnover,
+        "challenger_turnover": challenger_turnover,
+        "turnover_penalty": turnover_penalty,
+        "champion_cost_drag": champion_cost,
+        "challenger_cost_drag": challenger_cost,
+        "cost_drag_penalty": cost_drag_penalty,
+        "validation_calendar_days": validation_days,
+        "minimum_rebalance_count": min_rebalance_count,
+        "promotion_gate_passed": gate_passed,
+    }
+    if not history.empty and "comparison_end_date" in history.columns:
+        history = history[history["comparison_end_date"].astype(str) != record["comparison_end_date"]]
+    history = pd.concat([history, pd.DataFrame([record])], ignore_index=True)
+
+    pass_count = consecutive_promotion_passes(history)
+    required_passes = PROMOTION_CONFIG["required_consecutive_passes"]
+    promote_now = previous_active != "challenger" and gate_passed and pass_count >= required_passes
+    active_role = "challenger" if previous_active == "challenger" or promote_now else "champion"
+    active_name = "logistic_price_relative_challenger" if active_role == "challenger" else "robust_ensemble_champion"
+
+    if promote_now:
+        status = "challenger_promoted"
+        summary = "The challenger passed the promotion gate for enough consecutive revalidations and is now the active recommendation model."
+    elif active_role == "challenger" and gate_passed:
+        status = "challenger_active_passing"
+        summary = "The challenger is already active and passed the latest monitoring gate."
+    elif active_role == "challenger":
+        status = "challenger_active_under_review"
+        summary = "The challenger is active, but the latest monitoring gate did not pass; review before further use."
+    elif gate_passed:
+        remaining = max(required_passes - pass_count, 0)
+        status = "challenger_candidate_confirming"
+        summary = f"The challenger passed the latest gate but needs {remaining} more consecutive pass(es) before automatic promotion."
+    else:
+        failed = [check["name"] for check in checks if not check["passed"]]
+        status = "champion_retained"
+        summary = "The champion remains active because the challenger did not pass: " + ", ".join(failed) + "."
+
+    history.loc[history.index[-1], "active_model_after_check"] = active_role
+    history.loc[history.index[-1], "promotion_status"] = status
+    history.to_csv(PROMOTION_HISTORY_CSV, index=False)
+
+    decision = {
+        "evaluated_at": record["evaluated_at"],
+        "evaluated_on": record["evaluated_on"],
+        "active_model_role": active_role,
+        "active_model_name": active_name,
+        "previous_active_model_role": previous_active,
+        "promotion_status": status,
+        "promotion_summary": summary,
+        "promotion_gate_passed": gate_passed,
+        "consecutive_passes": pass_count,
+        "required_consecutive_passes": required_passes,
+        "promoted_now": promote_now,
+        "comparison_start_date": record["comparison_start_date"],
+        "comparison_end_date": record["comparison_end_date"],
+        "checks": checks,
+        "metrics": record,
+        "config": PROMOTION_CONFIG,
+    }
+    PROMOTION_DECISION_JSON.write_text(json.dumps(decision, indent=2, default=str), encoding="utf-8")
+    return decision
+
+
 def sync_app_data() -> None:
     if not APP_DATA_DIR.exists():
         return
@@ -826,6 +1107,8 @@ def sync_app_data() -> None:
         CHALLENGER_REPORT_JSON.name,
         MODEL_COMPARISON_CSV.name,
         SIGNAL_COMPARISON_CSV.name,
+        PROMOTION_DECISION_JSON.name,
+        PROMOTION_HISTORY_CSV.name,
         STATE_JSON.name,
     ]
     for name in file_names:
@@ -878,6 +1161,7 @@ def monthly_retrain(start_date: str | None = None, end_date: str | None = None, 
     challenger_report = run_backtest_from_archive(challenger_archive, start_date=start_date, end_date=end_date)
     model_comparison = compare_backtest_reports()
     signal_comparison = compare_latest_signals()
+    promotion_decision = evaluate_model_promotion(model_comparison)
     next_due = (now_local() + pd.DateOffset(months=1)).date().isoformat()
     state = write_state(
         monthly_retrain_status="updated",
@@ -890,9 +1174,15 @@ def monthly_retrain(start_date: str | None = None, end_date: str | None = None, 
         challenger_strategy_cagr=challenger_report.get("strategy_cagr"),
         comparison_rows=int(len(model_comparison)),
         latest_signal_disagreements=int((signal_comparison["champion_signal"] != signal_comparison["challenger_signal"]).sum()),
+        **promotion_state_updates(promotion_decision),
     )
     sync_app_data()
-    return {"daily": daily, "state": state, "comparison": model_comparison.to_dict(orient="records")}
+    return {
+        "daily": daily,
+        "state": state,
+        "comparison": model_comparison.to_dict(orient="records"),
+        "promotion": promotion_decision,
+    }
 
 
 def daily_due(state: dict[str, Any]) -> bool:
@@ -917,7 +1207,7 @@ def auto_refresh(make_backup: bool = True) -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Live data refresh, challenger model, and champion/challenger comparison.")
-    parser.add_argument("mode", choices=["auto", "daily", "monthly", "challenger", "sync"], nargs="?", default="auto")
+    parser.add_argument("mode", choices=["auto", "daily", "monthly", "challenger", "promotion", "sync"], nargs="?", default="auto")
     parser.add_argument("--start-date", default=None)
     parser.add_argument("--end-date", default=None)
     parser.add_argument("--no-backup", action="store_true")
@@ -934,6 +1224,12 @@ def main() -> None:
         compare_latest_signals()
         sync_app_data()
         result = {"status": "challenger_updated"}
+    elif args.mode == "promotion":
+        model_comparison = compare_backtest_reports()
+        promotion_decision = evaluate_model_promotion(model_comparison)
+        state = write_state(**promotion_state_updates(promotion_decision))
+        sync_app_data()
+        result = {"status": "promotion_checked", "state": state, "promotion": promotion_decision}
     else:
         sync_app_data()
         result = {"status": "synced"}

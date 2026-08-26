@@ -229,7 +229,7 @@ def load_data(data_source_dir: str) -> tuple[pd.DataFrame, dict, dict, pd.DataFr
 
 
 @st.cache_data(show_spinner=False)
-def load_optional_outputs(data_source_dir: str) -> tuple[dict, pd.DataFrame, dict, dict, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def load_optional_outputs(data_source_dir: str) -> tuple[dict, pd.DataFrame, dict, dict, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     source_dir = Path(data_source_dir)
     state = read_json_optional(source_dir / "model_refresh_state.json")
     challenger_portfolio = read_csv_optional(source_dir / "challenger_latest_industry_portfolio.csv")
@@ -237,6 +237,7 @@ def load_optional_outputs(data_source_dir: str) -> tuple[dict, pd.DataFrame, dic
     challenger_report = read_json_optional(source_dir / "challenger_backtest_report.json")
     challenger_nav = read_csv_optional(source_dir / "challenger_backtest_daily_nav.csv", parse_dates=["date"])
     challenger_archive = read_csv_optional(source_dir / "challenger_walk_forward_signal_archive.csv", parse_dates=["prediction_date"])
+    challenger_trades = read_csv_optional(source_dir / "challenger_backtest_trades.csv", parse_dates=["date"])
     model_comparison = read_csv_optional(source_dir / "champion_vs_challenger_model_comparison.csv")
     signal_comparison = read_csv_optional(source_dir / "champion_vs_challenger_latest_signals.csv")
     return (
@@ -246,6 +247,7 @@ def load_optional_outputs(data_source_dir: str) -> tuple[dict, pd.DataFrame, dic
         challenger_report,
         challenger_nav,
         challenger_archive,
+        challenger_trades,
         model_comparison,
         signal_comparison,
     )
@@ -324,11 +326,11 @@ portfolio, decision, backtest, nav, archive, trades = load_data(str(DATA_SOURCE_
     challenger_report,
     challenger_nav,
     challenger_archive,
+    challenger_trades,
     model_comparison,
     signal_comparison,
 ) = load_optional_outputs(str(DATA_SOURCE_DIR))
-sector_rows = portfolio[portfolio["asset"].isin(SECTOR_ASSETS)].copy()
-target_rows = portfolio[portfolio["target_weight"].fillna(0) > 0].copy()
+promotion_decision = read_json_optional(DATA_SOURCE_DIR / "model_promotion_decision.json")
 if not challenger_portfolio.empty:
     for col in [
         "target_weight",
@@ -345,6 +347,34 @@ if not challenger_portfolio.empty:
     if "signal_edge" not in challenger_portfolio.columns and {"latest_outperformance_probability", "threshold"}.issubset(challenger_portfolio.columns):
         challenger_portfolio["signal_edge"] = challenger_portfolio["latest_outperformance_probability"] - challenger_portfolio["threshold"]
     challenger_portfolio["sector"] = challenger_portfolio["asset"].map(SECTOR_NAMES).fillna(challenger_portfolio["asset"])
+active_model_role = promotion_decision.get("active_model_role") or refresh_state.get("active_model_role", "champion")
+active_model_name = promotion_decision.get("active_model_name") or refresh_state.get("active_model_name", "robust_ensemble_champion")
+if active_model_role == "challenger":
+    challenger_ready = (
+        not challenger_portfolio.empty
+        and bool(challenger_decision)
+        and bool(challenger_report)
+        and not challenger_nav.empty
+        and not challenger_archive.empty
+    )
+    if challenger_ready:
+        portfolio = challenger_portfolio.copy()
+        decision = challenger_decision
+        backtest = challenger_report
+        nav = challenger_nav
+        archive = challenger_archive
+        trades = challenger_trades
+    else:
+        active_model_role = "champion"
+        active_model_name = "robust_ensemble_champion"
+active_model_label = "Challenger promoted" if active_model_role == "challenger" else "Champion"
+promotion_status = promotion_decision.get("promotion_status") or refresh_state.get("model_promotion_status", "not evaluated")
+promotion_summary = promotion_decision.get("promotion_summary") or refresh_state.get(
+    "model_promotion_summary",
+    "The champion is active until the challenger passes the promotion gate.",
+)
+sector_rows = portfolio[portfolio["asset"].isin(SECTOR_ASSETS)].copy()
+target_rows = portfolio[portfolio["target_weight"].fillna(0) > 0].copy()
 challenger_sector_rows = (
     challenger_portfolio[challenger_portfolio["asset"].isin(SECTOR_ASSETS)].copy()
     if not challenger_portfolio.empty
@@ -377,7 +407,10 @@ constraint_error_text = (
 )
 
 st.title("Sector ETF Prediction Dashboard")
-st.caption(f"Updated {today_local_str()} | last refresh: {updated_at} | price data as of {data_asof_date}.")
+st.caption(
+    f"Active model: {active_model_label} | Updated {today_local_str()} | "
+    f"last refresh: {updated_at} | price data as of {data_asof_date}."
+)
 
 if auto_refresh_result.get("status") == "failed":
     st.warning("Automatic refresh failed. The dashboard is showing the newest saved output files.")
@@ -397,6 +430,7 @@ with st.sidebar:
     st.divider()
     st.caption(f"Updated {today_local_str()}")
     st.caption(f"Price data as of {data_asof_date}")
+    st.caption(f"Active model: {active_model_label}")
     st.caption(f"Last monthly retrain: {last_monthly_retrain}")
     st.caption(f"Next monthly retrain due: {next_monthly_retrain}")
     if st.button("Refresh now", icon=":material/sync:"):
@@ -417,7 +451,7 @@ with st.sidebar:
     if st.button("Run monthly retrain", icon=":material/model_training:"):
         with st.spinner("Running monthly retrain and champion/challenger comparison..."):
             completed = subprocess.run(
-                [sys.executable, str(REFRESH_SCRIPT), "monthly", "--start-date", "2026-05-20", "--no-backup"],
+                [sys.executable, str(REFRESH_SCRIPT), "monthly", "--no-backup"],
                 cwd=str(MODEL_DIR),
                 capture_output=True,
                 text=True,
@@ -645,6 +679,22 @@ with allocation_tab:
 
 with comparison_tab:
     st.subheader("Champion vs challenger")
+    st.markdown(
+        f"""
+        <div class="note-box">
+        <b>Promotion status.</b> {promotion_summary}<br>
+        <span class="small-muted">Current active model: {active_model_label}. Status code: {promotion_status}.</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    if promotion_decision.get("checks"):
+        check_rows = pd.DataFrame(promotion_decision["checks"])
+        check_rows["passed"] = check_rows["passed"].map(lambda value: "PASS" if value else "FAIL")
+        for col in ["observed", "required"]:
+            check_rows[col] = check_rows[col].map(lambda value: "" if pd.isna(value) else f"{float(value):.3f}")
+        st.dataframe(check_rows[["name", "passed", "observed", "required", "direction"]], hide_index=True, width="stretch")
+
     if model_comparison.empty:
         st.info("Run the monthly refresh once to populate champion/challenger backtest comparison outputs.")
     else:
@@ -748,7 +798,7 @@ with comparison_tab:
         st.dataframe(style_signal_table(challenger_summary), hide_index=True, width="stretch")
 
 with backtest_tab:
-    st.subheader("Walk-forward backtest")
+    st.subheader(f"Walk-forward backtest ({active_model_label})")
     metric_cols = st.columns(6)
     metric_cols[0].metric("Strategy CAGR", pct(backtest["strategy_cagr"], 1))
     metric_cols[1].metric("SPY CAGR", pct(backtest["spy_cagr"], 1))
@@ -836,6 +886,9 @@ with notes_tab:
         {pct(trade_diagnostics["executed_one_way_turnover"], 1)}.</p>
         <p><b>Constraint errors.</b> Constraint errors report whether allocation rules were violated. Current count:
         {constraint_error_count}; details: {constraint_error_text}.</p>
+        <p><b>Model promotion.</b> The dashboard uses the active model selected by the promotion gate. The challenger
+        is promoted only after it passes the return, Sharpe, drawdown, turnover, cost, and validation-history checks
+        for the required number of consecutive revalidations.</p>
         <p><b>Signal definition.</b> BUY means the model predicts the sector ETF will outperform SPY by more
         than 1% over the next 21 trading days. It does not guarantee an absolute positive return.</p>
         <p><b>Latest data date.</b> The bundled output is based on data through {asof_date}. Refresh the Python
@@ -850,8 +903,8 @@ with notes_tab:
     )
 
     st.download_button(
-        "Download latest portfolio CSV",
-        data=(DATA_DIR / "latest_industry_portfolio.csv").read_bytes(),
-        file_name="latest_industry_portfolio.csv",
+        "Download active portfolio CSV",
+        data=portfolio.to_csv(index=False).encode("utf-8"),
+        file_name=f"{active_model_role}_latest_industry_portfolio.csv",
         mime="text/csv",
     )

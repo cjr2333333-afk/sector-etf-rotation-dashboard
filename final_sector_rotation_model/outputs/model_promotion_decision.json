@@ -1,0 +1,101 @@
+{
+  "evaluated_at": "2026-08-26T15:38:40.578854+08:00",
+  "evaluated_on": "2026-08-26",
+  "active_model_role": "champion",
+  "active_model_name": "robust_ensemble_champion",
+  "previous_active_model_role": "champion",
+  "promotion_status": "challenger_candidate_confirming",
+  "promotion_summary": "The challenger passed the latest gate but needs 1 more consecutive pass(es) before automatic promotion.",
+  "promotion_gate_passed": true,
+  "consecutive_passes": 1,
+  "required_consecutive_passes": 2,
+  "promoted_now": false,
+  "comparison_start_date": "2025-10-01",
+  "comparison_end_date": "2026-01-30",
+  "checks": [
+    {
+      "name": "Enough validation history",
+      "passed": true,
+      "observed": 121.0,
+      "required": 90.0,
+      "direction": "at_least"
+    },
+    {
+      "name": "Enough rebalances",
+      "passed": true,
+      "observed": 4.0,
+      "required": 3.0,
+      "direction": "at_least"
+    },
+    {
+      "name": "CAGR advantage",
+      "passed": true,
+      "observed": 0.00857154090851231,
+      "required": 0.005,
+      "direction": "at_least"
+    },
+    {
+      "name": "Sharpe advantage",
+      "passed": true,
+      "observed": 0.16839804728576402,
+      "required": 0.1,
+      "direction": "at_least"
+    },
+    {
+      "name": "Drawdown control",
+      "passed": true,
+      "observed": -0.0043212330264957854,
+      "required": 0.02,
+      "direction": "at_most"
+    },
+    {
+      "name": "Turnover control",
+      "passed": true,
+      "observed": 1.1827814569536426,
+      "required": 1.5830284532575856,
+      "direction": "at_most"
+    },
+    {
+      "name": "Cost drag control",
+      "passed": true,
+      "observed": -5.461958478638696e-06,
+      "required": 0.005,
+      "direction": "at_most"
+    }
+  ],
+  "metrics": {
+    "evaluated_at": "2026-08-26T15:38:40.578854+08:00",
+    "evaluated_on": "2026-08-26",
+    "comparison_start_date": "2025-10-01",
+    "comparison_end_date": "2026-01-30",
+    "champion_strategy_cagr": 0.18931701560713043,
+    "challenger_strategy_cagr": 0.19788855651564274,
+    "cagr_advantage": 0.00857154090851231,
+    "champion_strategy_sharpe": 1.3386255958938345,
+    "challenger_strategy_sharpe": 1.5070236431795985,
+    "sharpe_advantage": 0.16839804728576402,
+    "champion_strategy_max_drawdown": 0.050208846826160225,
+    "challenger_strategy_max_drawdown": 0.04588761379966444,
+    "drawdown_penalty": -0.0043212330264957854,
+    "champion_turnover": 1.1864227626060684,
+    "challenger_turnover": 1.1827814569536426,
+    "turnover_penalty": -0.003641305652425819,
+    "champion_cost_drag": 0.0017796341439091025,
+    "challenger_cost_drag": 0.0017741721854304638,
+    "cost_drag_penalty": -5.461958478638696e-06,
+    "validation_calendar_days": 121.0,
+    "minimum_rebalance_count": 4.0,
+    "promotion_gate_passed": true
+  },
+  "config": {
+    "required_consecutive_passes": 2,
+    "min_validation_calendar_days": 90,
+    "min_rebalance_count": 3,
+    "min_cagr_advantage": 0.005,
+    "min_sharpe_advantage": 0.1,
+    "max_drawdown_penalty": 0.02,
+    "max_turnover_multiple": 1.25,
+    "max_turnover_absolute_penalty": 0.1,
+    "max_cost_drag_penalty": 0.005
+  }
+}

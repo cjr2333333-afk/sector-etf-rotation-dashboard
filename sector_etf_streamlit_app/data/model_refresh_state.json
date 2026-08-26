@@ -6,7 +6,7 @@
   "new_price_rows": 660,
   "price_source": "Yahoo Finance via yfinance",
   "macro_fundamental_policy": "Carry forward latest supplied macro, regime, and sector fundamental values until a point-in-time provider is connected.",
-  "state_written_at": "2026-08-26T13:48:12.131777+08:00",
+  "state_written_at": "2026-08-26T15:38:40.583401+08:00",
   "prediction_refresh_status": "updated",
   "prediction_updated_at": "2026-08-26T13:45:36.373977+08:00",
   "prediction_updated_on": "2026-08-26",
@@ -20,5 +20,14 @@
   "comparison_method": "Champion report from package compared with newly generated challenger backtest over the same window. Full current-period monthly champion archive was interrupted by user.",
   "next_monthly_retrain_due": "2026-09-26",
   "next_quarterly_revalidation_due": "2026-11-26",
-  "last_quarterly_revalidation_at": "2026-08-26T13:48:12.131393+08:00"
+  "last_quarterly_revalidation_at": "2026-08-26T13:48:12.131393+08:00",
+  "active_model_role": "champion",
+  "active_model_name": "robust_ensemble_champion",
+  "model_promotion_status": "challenger_candidate_confirming",
+  "model_promotion_summary": "The challenger passed the latest gate but needs 1 more consecutive pass(es) before automatic promotion.",
+  "last_model_promotion_check_at": "2026-08-26T15:38:40.578854+08:00",
+  "last_model_promotion_check_on": "2026-08-26",
+  "promotion_gate_passed": true,
+  "promotion_consecutive_passes": 1,
+  "promotion_required_consecutive_passes": 2
 }
