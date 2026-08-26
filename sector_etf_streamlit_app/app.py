@@ -807,7 +807,7 @@ with notes_tab:
         {pct(target_diagnostics["final_sector_exposure"], 1)}.</p>
         <p><b>Target volatility.</b> The portfolio construction step targets approximately
         {pct(target_diagnostics["overlay"]["target_vol"], 1)} annualized volatility before applying final trade controls.</p>
-        <p><b>Executed turnover.</b> Executed turnover is the one-way portfolio change after turnover scaling:
+        <p><b>Executed turnover.</b> How much of the portfolio would actually be traded after applying turnover controls:
         {pct(trade_diagnostics["executed_one_way_turnover"], 1)}.</p>
         <p><b>Constraint errors.</b> Constraint errors report whether allocation rules were violated. Current count:
         {constraint_error_count}; details: {constraint_error_text}.</p>
