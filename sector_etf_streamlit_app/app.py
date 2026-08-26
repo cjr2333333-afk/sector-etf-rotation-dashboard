@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import json
-import subprocess
-import sys
 from pathlib import Path
 
 import pandas as pd
@@ -15,7 +13,6 @@ APP_DIR = Path(__file__).resolve().parent
 DATA_DIR = APP_DIR / "data"
 MODEL_DIR = APP_DIR.parent / "final_sector_rotation_model"
 MODEL_OUTPUT_DIR = MODEL_DIR / "outputs"
-REFRESH_SCRIPT = MODEL_DIR / "production_refresh.py"
 
 DATA_SOURCE_DIR = MODEL_OUTPUT_DIR if (MODEL_OUTPUT_DIR / "latest_industry_portfolio.csv").exists() else DATA_DIR
 STATE_PATH = DATA_SOURCE_DIR / "model_refresh_state.json"
@@ -158,12 +155,12 @@ def run_auto_refresh_if_needed() -> dict:
         DATA_SOURCE_DIR / "champion_vs_challenger_latest_signals.csv",
     ]
     stale = monthly_due or state.get("prediction_updated_on") != today_local_str() or any(not path.exists() for path in required)
-    if not stale or not REFRESH_SCRIPT.exists():
+    if not stale:
         return {"status": "fresh_or_unavailable", "state": state}
     return {
         "status": "stale_saved_outputs",
         "state": state,
-        "message": "Saved model outputs are stale. The scheduled GitHub refresh or the manual Refresh now button can update them.",
+        "message": "Saved model outputs are stale. The scheduled GitHub refresh can update them without using Streamlit CPU.",
     }
 
 
@@ -403,7 +400,7 @@ if auto_refresh_result.get("status") == "failed":
 elif auto_refresh_result.get("status") == "stale_saved_outputs":
     st.info(
         "The dashboard is showing the newest saved model outputs. "
-        "Scheduled refresh or the sidebar Refresh now button can update the data."
+        "Scheduled GitHub refresh can update the data without slowing down the public page."
     )
 
 with st.sidebar:
@@ -422,36 +419,7 @@ with st.sidebar:
     st.caption(f"Active model: {active_model_label}")
     st.caption(f"Last monthly retrain: {last_monthly_retrain}")
     st.caption(f"Next monthly retrain due: {next_monthly_retrain}")
-    if st.button("Refresh now", icon=":material/sync:"):
-        with st.spinner("Running daily refresh..."):
-            completed = subprocess.run(
-                [sys.executable, str(REFRESH_SCRIPT), "daily", "--no-backup"],
-                cwd=str(MODEL_DIR),
-                capture_output=True,
-                text=True,
-                timeout=3600,
-            )
-        st.cache_data.clear()
-        if completed.returncode == 0:
-            st.success("Refresh complete. Reloading dashboard.")
-            st.rerun()
-        st.error("Refresh failed.")
-        st.code(completed.stderr[-4000:])
-    if st.button("Run monthly retrain", icon=":material/model_training:"):
-        with st.spinner("Running monthly retrain and champion/challenger comparison..."):
-            completed = subprocess.run(
-                [sys.executable, str(REFRESH_SCRIPT), "monthly", "--no-backup"],
-                cwd=str(MODEL_DIR),
-                capture_output=True,
-                text=True,
-                timeout=7200,
-            )
-        st.cache_data.clear()
-        if completed.returncode == 0:
-            st.success("Monthly retrain complete. Reloading dashboard.")
-            st.rerun()
-        st.error("Monthly retrain failed or was interrupted.")
-        st.code(completed.stderr[-4000:])
+    st.caption("Model refreshes run from GitHub Actions so public visitors do not trigger heavy compute.")
     st.divider()
     st.caption("This is a standalone Streamlit dashboard. It is not a ChatGPT Sites page and has no ChatGPT sign-in.")
 
