@@ -291,8 +291,9 @@ def style_signal_table(df: pd.DataFrame) -> pd.DataFrame:
 def fig_template(fig: go.Figure) -> go.Figure:
     fig.update_layout(
         template="plotly_white",
-        margin=dict(l=10, r=10, t=42, b=20),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
+        margin=dict(l=10, r=10, t=86, b=28),
+        title=dict(y=0.94, x=0.0, xanchor="left", yanchor="top", font=dict(size=16)),
+        legend=dict(orientation="h", yanchor="bottom", y=1.08, xanchor="left", x=0, title_text=""),
         font=dict(family="Arial"),
     )
     return fig
@@ -539,7 +540,7 @@ with signals_tab:
             hover_data=["sector", "test_auc", "quality_adjusted_edge_score"],
         )
         edge_fig.update_xaxes(tickformat=".0%")
-        st.plotly_chart(fig_template(edge_fig), width="stretch")
+        st.plotly_chart(fig_template(edge_fig), width="stretch", config={"displayModeBar": False})
     with chart_right:
         scatter_fig = px.scatter(
             filtered,
@@ -563,7 +564,7 @@ with signals_tab:
         )
         scatter_fig.update_xaxes(tickformat=".0%", range=[0, 1])
         scatter_fig.update_yaxes(tickformat=".0%", range=[0, 1])
-        st.plotly_chart(fig_template(scatter_fig), width="stretch")
+        st.plotly_chart(fig_template(scatter_fig), width="stretch", config={"displayModeBar": False})
 
 with allocation_tab:
     st.subheader("Interactive rebalance simulator")
