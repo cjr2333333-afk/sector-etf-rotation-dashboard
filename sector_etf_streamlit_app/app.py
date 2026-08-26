@@ -291,12 +291,20 @@ def style_signal_table(df: pd.DataFrame) -> pd.DataFrame:
 def fig_template(fig: go.Figure) -> go.Figure:
     fig.update_layout(
         template="plotly_white",
-        margin=dict(l=10, r=10, t=86, b=28),
-        title=dict(y=0.94, x=0.0, xanchor="left", yanchor="top", font=dict(size=16)),
-        legend=dict(orientation="h", yanchor="bottom", y=1.08, xanchor="left", x=0, title_text=""),
+        margin=dict(l=12, r=12, t=112, b=34),
+        title=dict(y=0.98, x=0.0, xanchor="left", yanchor="top", font=dict(size=16)),
+        legend=dict(orientation="h", yanchor="bottom", y=1.14, xanchor="left", x=0, title_text=""),
         font=dict(family="Arial"),
     )
     return fig
+
+
+def show_chart(fig: go.Figure) -> None:
+    st.plotly_chart(
+        fig_template(fig),
+        width="stretch",
+        config={"displayModeBar": False, "responsive": True},
+    )
 
 
 auto_refresh_result = run_auto_refresh_if_needed()
@@ -450,7 +458,7 @@ with overview_tab:
         )
         allocation_fig.update_xaxes(tickformat=".0%")
         allocation_fig.update_layout(showlegend=False, xaxis_title="Target weight", yaxis_title="")
-        st.plotly_chart(fig_template(allocation_fig), width="stretch")
+        show_chart(allocation_fig)
 
     with right:
         st.subheader("Risk state")
@@ -540,7 +548,7 @@ with signals_tab:
             hover_data=["sector", "test_auc", "quality_adjusted_edge_score"],
         )
         edge_fig.update_xaxes(tickformat=".0%")
-        st.plotly_chart(fig_template(edge_fig), width="stretch", config={"displayModeBar": False})
+        show_chart(edge_fig)
     with chart_right:
         scatter_fig = px.scatter(
             filtered,
@@ -564,7 +572,7 @@ with signals_tab:
         )
         scatter_fig.update_xaxes(tickformat=".0%", range=[0, 1])
         scatter_fig.update_yaxes(tickformat=".0%", range=[0, 1])
-        st.plotly_chart(fig_template(scatter_fig), width="stretch", config={"displayModeBar": False})
+        show_chart(scatter_fig)
 
 with allocation_tab:
     st.subheader("Interactive rebalance simulator")
@@ -627,7 +635,7 @@ with allocation_tab:
             },
         )
         sim_fig.update_yaxes(tickformat=".0%")
-        st.plotly_chart(fig_template(sim_fig), width="stretch")
+        show_chart(sim_fig)
 
     trade_table = simulated[simulated["abs_trade"] > 0.0001].sort_values("abs_trade", ascending=False)
     trade_display = trade_table[["asset", "sector", "current_weight", "target_weight", "trade_weight", "final_weight"]].copy()
@@ -693,7 +701,7 @@ with comparison_tab:
             color_discrete_map={"champion": "#2f5f98", "challenger": "#087f5b"},
         )
         comp_fig.update_yaxes(tickformat=".0%")
-        st.plotly_chart(fig_template(comp_fig), width="stretch")
+        show_chart(comp_fig)
 
         display = model_comparison.copy()
         percent_cols = [
@@ -779,11 +787,11 @@ with backtest_tab:
         }
     )
     nav_fig = px.line(nav_long, x="date", y="nav", color="series", title="NAV comparison")
-    st.plotly_chart(fig_template(nav_fig), width="stretch")
+    show_chart(nav_fig)
 
     drawdown_fig = px.area(nav, x="date", y="drawdown_pct", title="Strategy drawdown")
     drawdown_fig.update_yaxes(tickformat=".0%")
-    st.plotly_chart(fig_template(drawdown_fig), width="stretch")
+    show_chart(drawdown_fig)
 
     st.subheader("Backtest trades")
     if trades.empty:
@@ -808,7 +816,7 @@ with archive_tab:
         hover_data=["sector", "latest_outperformance_probability", "threshold", "validation_accuracy_rolling"],
     )
     archive_fig.update_yaxes(tickformat=".0%")
-    st.plotly_chart(fig_template(archive_fig), width="stretch")
+    show_chart(archive_fig)
 
     archive_display = archive_for_date[
         [
