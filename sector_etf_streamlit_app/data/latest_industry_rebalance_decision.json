@@ -1,10 +1,10 @@
 {
   "target_diagnostics": {
-    "asof_date": "2026-08-28",
+    "asof_date": "2026-08-31",
     "selected_tickers": [
       "XLV",
-      "XLE",
-      "XLI"
+      "XLI",
+      "XLE"
     ],
     "overlay": {
       "target_vol": 0.12,
@@ -18,17 +18,17 @@
     "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
     "defensive_asset_override": "SPY-only volatility 14.12% exceeded target 12.00%; cash used for unallocated risk budget.",
     "risk_parity_weights": {
-      "XLV": 0.2909499779163615,
-      "XLE": 0.3191900271395757,
-      "XLI": 0.3898599949440628
+      "XLV": 0.3013833871140993,
+      "XLI": 0.3881279328355683,
+      "XLE": 0.3104886800503325
     },
     "tilted_relative_weights": {
-      "XLV": 0.3002457916578544,
-      "XLE": 0.3165961409199646,
-      "XLI": 0.3831580674221809
+      "XLV": 0.31166716564533736,
+      "XLI": 0.3825393594788077,
+      "XLE": 0.30579347487585484
     },
     "sector_exposure_after_vol_target": 1.0,
-    "final_sector_exposure": 0.8499999999999999,
+    "final_sector_exposure": 0.8499999999999976,
     "constraint_errors": []
   },
   "trade_diagnostics": {
