@@ -1,7 +1,7 @@
 {
   "model_role": "challenger",
   "target_diagnostics": {
-    "asof_date": "2026-09-03",
+    "asof_date": "2026-09-04",
     "selected_tickers": [
       "XLK",
       "XLF",
@@ -17,19 +17,19 @@
     },
     "defensive_asset": "CASH",
     "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
-    "defensive_asset_override": "SPY-only volatility 13.25% exceeded target 12.00%; cash used for unallocated risk budget.",
+    "defensive_asset_override": "SPY-only volatility 12.81% exceeded target 12.00%; cash used for unallocated risk budget.",
     "risk_parity_weights": {
-      "XLK": 0.19306214222220475,
-      "XLF": 0.5376909888057412,
-      "XLI": 0.2692468689720541
+      "XLK": 0.19079700238772607,
+      "XLF": 0.5255897500561387,
+      "XLI": 0.2836132475561352
     },
     "tilted_relative_weights": {
-      "XLK": 0.20023590959631699,
-      "XLF": 0.5338102862775158,
-      "XLI": 0.2659538041261673
+      "XLK": 0.19813129119276005,
+      "XLF": 0.5213778343902428,
+      "XLI": 0.28049087441699727
     },
-    "sector_exposure_after_vol_target": 0.9062948460806851,
-    "final_sector_exposure": 0.65,
+    "sector_exposure_after_vol_target": 0.9362572953092411,
+    "final_sector_exposure": 0.6500000000000001,
     "constraint_errors": []
   },
   "trade_diagnostics": {
@@ -40,5 +40,5 @@
     "rolling_annual_turnover_before_trade": 0.0,
     "trigger_type": "TIME_BASED"
   },
-  "generated_at": "2026-09-05T08:16:26.835184+08:00"
+  "generated_at": "2026-09-08T08:36:00.763893+08:00"
 }
