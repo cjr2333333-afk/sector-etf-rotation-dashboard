@@ -19,17 +19,17 @@
     "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
     "defensive_asset_override": "SPY-only volatility 12.81% exceeded target 12.00%; cash used for unallocated risk budget.",
     "risk_parity_weights": {
-      "XLK": 0.19079700238772607,
-      "XLF": 0.5255897500561387,
-      "XLI": 0.2836132475561352
+      "XLK": 0.19079700238800035,
+      "XLF": 0.5255897500565585,
+      "XLI": 0.2836132475554412
     },
     "tilted_relative_weights": {
-      "XLK": 0.19813129119276005,
-      "XLF": 0.5213778343902428,
-      "XLI": 0.28049087441699727
+      "XLK": 0.19813129119240774,
+      "XLF": 0.5213778343921832,
+      "XLI": 0.28049087441540893
     },
-    "sector_exposure_after_vol_target": 0.9362572953092411,
-    "final_sector_exposure": 0.6500000000000001,
+    "sector_exposure_after_vol_target": 0.9362572953104344,
+    "final_sector_exposure": 0.6499999999999999,
     "constraint_errors": []
   },
   "trade_diagnostics": {
@@ -40,5 +40,5 @@
     "rolling_annual_turnover_before_trade": 0.0,
     "trigger_type": "TIME_BASED"
   },
-  "generated_at": "2026-09-08T08:36:00.763893+08:00"
+  "generated_at": "2026-09-09T08:26:30.286332+08:00"
 }
