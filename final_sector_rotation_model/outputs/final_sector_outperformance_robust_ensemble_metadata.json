@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-12T00:27:47.488835",
+  "generated_at": "2026-09-15T00:47:24.307499",
   "source_recipes": "sector_outperformance_ensemble_best_ensemble_by_sector.csv",
   "outputs": [
     "final_sector_outperformance_robust_ensemble_predictions.csv",
