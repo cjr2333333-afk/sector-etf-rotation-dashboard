@@ -1,6 +1,6 @@
 {
   "target_diagnostics": {
-    "asof_date": "2026-09-15",
+    "asof_date": "2026-09-16",
     "selected_tickers": [
       "XLV",
       "XLI",
@@ -17,24 +17,24 @@
     "defensive_asset": "SPY",
     "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
     "risk_parity_weights": {
-      "XLV": 0.29196973919572766,
-      "XLI": 0.39917531627762204,
-      "XLE": 0.30885494452665035
+      "XLV": 0.2968416401106193,
+      "XLI": 0.40605187596789355,
+      "XLE": 0.2971064839214872
     },
     "tilted_relative_weights": {
-      "XLV": 0.3001876378847695,
-      "XLI": 0.3973855992077949,
-      "XLE": 0.3024267629074354
+      "XLV": 0.305424602895462,
+      "XLI": 0.40343529760466357,
+      "XLE": 0.2911400994998744
     },
     "sector_exposure_after_vol_target": 1.0,
-    "final_sector_exposure": 0.8499999999999803,
+    "final_sector_exposure": 0.85,
     "constraint_errors": []
   },
   "trade_diagnostics": {
-    "raw_one_way_turnover": 0.8499999999999803,
+    "raw_one_way_turnover": 0.85,
     "allowed_one_way_turnover": 0.3,
     "executed_one_way_turnover": 0.30000000000000004,
-    "turnover_scale_factor": 0.3529411764705964,
+    "turnover_scale_factor": 0.35294117647058826,
     "rolling_annual_turnover_before_trade": 0.0,
     "trigger_type": "TIME_BASED"
   }
