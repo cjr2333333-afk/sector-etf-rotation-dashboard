@@ -18,16 +18,16 @@
     "defensive_asset": "SPY",
     "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
     "risk_parity_weights": {
-      "XLB": 0.31970755345254837,
-      "XLK": 0.23997082727167016,
-      "XLF": 0.44032161927578156
+      "XLB": 0.3197075534527483,
+      "XLK": 0.23997082727162108,
+      "XLF": 0.4403216192756307
     },
     "tilted_relative_weights": {
-      "XLB": 0.3270759288054951,
-      "XLK": 0.2439051993492021,
-      "XLF": 0.42901887184530274
+      "XLB": 0.32707592884049197,
+      "XLK": 0.24390519926871587,
+      "XLF": 0.4290188718907922
     },
-    "sector_exposure_after_vol_target": 0.8939976077718965,
+    "sector_exposure_after_vol_target": 0.8939976079882831,
     "final_sector_exposure": 0.6499999999999999,
     "constraint_errors": []
   },
@@ -39,5 +39,5 @@
     "rolling_annual_turnover_before_trade": 0.0,
     "trigger_type": "TIME_BASED"
   },
-  "generated_at": "2026-09-30T09:25:13.993683+08:00"
+  "generated_at": "2026-10-01T09:24:53.859495+08:00"
 }

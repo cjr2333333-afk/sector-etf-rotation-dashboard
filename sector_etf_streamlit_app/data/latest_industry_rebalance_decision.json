@@ -17,24 +17,24 @@
     "defensive_asset": "SPY",
     "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
     "risk_parity_weights": {
-      "XLI": 0.42308613393672007,
-      "XLV": 0.30414482631814055,
-      "XLE": 0.2727690397451394
+      "XLI": 0.42308613393689815,
+      "XLV": 0.30414482631805306,
+      "XLE": 0.27276903974504885
     },
     "tilted_relative_weights": {
-      "XLI": 0.43259592001176084,
-      "XLV": 0.3017849176918293,
-      "XLE": 0.2656191622964098
+      "XLI": 0.43259541902918275,
+      "XLV": 0.3017857262840105,
+      "XLE": 0.2656188546868068
     },
     "sector_exposure_after_vol_target": 1.0,
-    "final_sector_exposure": 0.85,
+    "final_sector_exposure": 0.8499999999999901,
     "constraint_errors": []
   },
   "trade_diagnostics": {
-    "raw_one_way_turnover": 0.85,
+    "raw_one_way_turnover": 0.8499999999999901,
     "allowed_one_way_turnover": 0.3,
     "executed_one_way_turnover": 0.30000000000000004,
-    "turnover_scale_factor": 0.35294117647058826,
+    "turnover_scale_factor": 0.3529411764705923,
     "rolling_annual_turnover_before_trade": 0.0,
     "trigger_type": "TIME_BASED"
   }
