@@ -18,26 +18,26 @@
     "defensive_asset": "SPY",
     "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
     "risk_parity_weights": {
-      "XLI": 0.3061447161827791,
-      "XLK": 0.22652441435964765,
-      "XLF": 0.4673308694575733
+      "XLI": 0.3061447161828697,
+      "XLK": 0.22652441435960488,
+      "XLF": 0.4673308694575254
     },
     "tilted_relative_weights": {
-      "XLI": 0.3156167377596953,
-      "XLK": 0.22553570023729133,
-      "XLF": 0.4588475620030134
+      "XLI": 0.31561673775963955,
+      "XLK": 0.22553570023761096,
+      "XLF": 0.4588475620027495
     },
-    "sector_exposure_after_vol_target": 0.8158527648360993,
-    "final_sector_exposure": 0.6500000000000001,
+    "sector_exposure_after_vol_target": 0.8158527648350631,
+    "final_sector_exposure": 0.65,
     "constraint_errors": []
   },
   "trade_diagnostics": {
-    "raw_one_way_turnover": 0.6500000000000001,
+    "raw_one_way_turnover": 0.65,
     "allowed_one_way_turnover": 0.3,
     "executed_one_way_turnover": 0.30000000000000004,
-    "turnover_scale_factor": 0.46153846153846145,
+    "turnover_scale_factor": 0.4615384615384615,
     "rolling_annual_turnover_before_trade": 0.0,
     "trigger_type": "TIME_BASED"
   },
-  "generated_at": "2026-10-16T08:33:05.742252+08:00"
+  "generated_at": "2026-10-17T08:41:40.087733+08:00"
 }
