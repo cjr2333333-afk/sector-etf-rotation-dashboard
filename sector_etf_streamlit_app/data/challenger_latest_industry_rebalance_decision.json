@@ -1,7 +1,7 @@
 {
   "model_role": "challenger",
   "target_diagnostics": {
-    "asof_date": "2026-10-15",
+    "asof_date": "2026-10-16",
     "selected_tickers": [
       "XLI",
       "XLK",
@@ -18,16 +18,16 @@
     "defensive_asset": "SPY",
     "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
     "risk_parity_weights": {
-      "XLI": 0.3061447161828697,
-      "XLK": 0.22652441435960488,
-      "XLF": 0.4673308694575254
+      "XLI": 0.3088285666074795,
+      "XLK": 0.2218024326881793,
+      "XLF": 0.4693690007043413
     },
     "tilted_relative_weights": {
-      "XLI": 0.31561673775963955,
-      "XLK": 0.22553570023761096,
-      "XLF": 0.4588475620027495
+      "XLI": 0.3184506870109107,
+      "XLK": 0.22060354844319488,
+      "XLF": 0.46094576454589425
     },
-    "sector_exposure_after_vol_target": 0.8158527648350631,
+    "sector_exposure_after_vol_target": 0.7990793496395181,
     "final_sector_exposure": 0.65,
     "constraint_errors": []
   },
@@ -39,5 +39,5 @@
     "rolling_annual_turnover_before_trade": 0.0,
     "trigger_type": "TIME_BASED"
   },
-  "generated_at": "2026-10-17T08:41:40.087733+08:00"
+  "generated_at": "2026-10-20T09:10:01.076073+08:00"
 }
