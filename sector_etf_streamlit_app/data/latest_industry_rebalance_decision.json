@@ -1,40 +1,40 @@
 {
   "target_diagnostics": {
-    "asof_date": "2026-11-04",
+    "asof_date": "2026-11-05",
     "selected_tickers": [
       "XLI",
-      "XLK",
-      "XLV"
+      "XLK"
     ],
     "overlay": {
       "target_vol": 0.12,
       "force_cash": false,
-      "max_sector_exposure": 1.0,
+      "max_sector_exposure": 0.8,
       "max_sector_count": 3,
       "trigger_type": "TIME_BASED",
-      "triggers": []
+      "triggers": [
+        "Only 2 BUY sectors: sector exposure capped at 80%"
+      ]
     },
-    "defensive_asset": "SPY",
+    "defensive_asset": "CASH",
     "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
+    "defensive_asset_override": "SPY-only volatility 13.97% exceeded target 12.00%; cash used for unallocated risk budget.",
     "risk_parity_weights": {
-      "XLI": 0.35302937059605133,
-      "XLK": 0.2711263695303417,
-      "XLV": 0.3758442598736069
+      "XLI": 0.627706172689385,
+      "XLK": 0.37229382731061494
     },
     "tilted_relative_weights": {
-      "XLI": 0.3629282022330759,
-      "XLK": 0.2690881656017961,
-      "XLV": 0.36798363216512786
+      "XLI": 0.6390351654285986,
+      "XLK": 0.3609648345714013
     },
-    "sector_exposure_after_vol_target": 1.0,
-    "final_sector_exposure": 0.9499999999999991,
+    "sector_exposure_after_vol_target": 0.6569086661453405,
+    "final_sector_exposure": 0.5999999999999971,
     "constraint_errors": []
   },
   "trade_diagnostics": {
-    "raw_one_way_turnover": 0.9499999999999991,
+    "raw_one_way_turnover": 1.0,
     "allowed_one_way_turnover": 0.3,
-    "executed_one_way_turnover": 0.29999999999999993,
-    "turnover_scale_factor": 0.31578947368421084,
+    "executed_one_way_turnover": 0.30000000000000004,
+    "turnover_scale_factor": 0.3,
     "rolling_annual_turnover_before_trade": 0.0,
     "trigger_type": "TIME_BASED"
   }
