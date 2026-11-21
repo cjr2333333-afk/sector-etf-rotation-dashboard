@@ -1,44 +1,43 @@
 {
   "model_role": "challenger",
   "target_diagnostics": {
-    "asof_date": "2026-11-19",
+    "asof_date": "2026-11-20",
     "selected_tickers": [
       "XLE",
-      "XLP",
-      "XLB"
+      "XLP"
     ],
     "overlay": {
-      "target_vol": 0.12,
-      "force_cash": false,
-      "max_sector_exposure": 1.0,
-      "max_sector_count": 3,
-      "trigger_type": "TIME_BASED",
-      "triggers": []
+      "target_vol": 0.1,
+      "force_cash": true,
+      "max_sector_exposure": 0.6,
+      "max_sector_count": 2,
+      "trigger_type": "EMERGENCY_TREND",
+      "triggers": [
+        "SPY below 200-day SMA for 3 consecutive trading days",
+        "Only 2 BUY sectors: sector exposure capped at 80%"
+      ]
     },
     "defensive_asset": "CASH",
     "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
-    "defensive_asset_override": "SPY-only volatility 16.18% exceeded target 12.00%; cash used for unallocated risk budget.",
     "risk_parity_weights": {
-      "XLE": 0.30807304193649376,
-      "XLP": 0.3473491801482437,
-      "XLB": 0.34457777791526256
+      "XLE": 0.42676920316061406,
+      "XLP": 0.5732307968393859
     },
     "tilted_relative_weights": {
-      "XLE": 0.3132205338141195,
-      "XLP": 0.3531268799875535,
-      "XLB": 0.3336525861983271
+      "XLE": 0.43874550973955245,
+      "XLP": 0.5612544902604476
     },
-    "sector_exposure_after_vol_target": 0.8760623980585085,
-    "final_sector_exposure": 0.65,
+    "sector_exposure_after_vol_target": 0.6,
+    "final_sector_exposure": 0.55,
     "constraint_errors": []
   },
   "trade_diagnostics": {
     "raw_one_way_turnover": 1.0,
-    "allowed_one_way_turnover": 0.3,
-    "executed_one_way_turnover": 0.30000000000000004,
-    "turnover_scale_factor": 0.3,
+    "allowed_one_way_turnover": 0.35,
+    "executed_one_way_turnover": 0.35,
+    "turnover_scale_factor": 0.35,
     "rolling_annual_turnover_before_trade": 0.0,
-    "trigger_type": "TIME_BASED"
+    "trigger_type": "EMERGENCY_TREND"
   },
-  "generated_at": "2026-11-20T11:39:06.164494+08:00"
+  "generated_at": "2026-11-21T11:21:34.845265+08:00"
 }

@@ -1,42 +1,40 @@
 {
   "target_diagnostics": {
-    "asof_date": "2026-11-19",
+    "asof_date": "2026-11-20",
     "selected_tickers": [
       "XLI",
-      "XLK",
-      "XLV"
+      "XLK"
     ],
     "overlay": {
-      "target_vol": 0.12,
-      "force_cash": false,
-      "max_sector_exposure": 1.0,
-      "max_sector_count": 3,
-      "trigger_type": "TIME_BASED",
-      "triggers": []
+      "target_vol": 0.1,
+      "force_cash": true,
+      "max_sector_exposure": 0.6,
+      "max_sector_count": 2,
+      "trigger_type": "EMERGENCY_TREND",
+      "triggers": [
+        "SPY below 200-day SMA for 3 consecutive trading days"
+      ]
     },
     "defensive_asset": "CASH",
     "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
-    "defensive_asset_override": "SPY-only volatility 16.18% exceeded target 12.00%; cash used for unallocated risk budget.",
     "risk_parity_weights": {
-      "XLI": 0.34187714055539375,
-      "XLK": 0.2385021057866549,
-      "XLV": 0.4196207536579514
+      "XLI": 0.6283391091001469,
+      "XLK": 0.37166089089985316
     },
     "tilted_relative_weights": {
-      "XLI": 0.3525936436869096,
-      "XLK": 0.2352404390243908,
-      "XLV": 0.41216591728869967
+      "XLI": 0.6396598980323183,
+      "XLK": 0.3603401019676817
     },
-    "sector_exposure_after_vol_target": 0.7419755566514086,
-    "final_sector_exposure": 0.7419755566514086,
+    "sector_exposure_after_vol_target": 0.4366860504335331,
+    "final_sector_exposure": 0.4366860504335331,
     "constraint_errors": []
   },
   "trade_diagnostics": {
     "raw_one_way_turnover": 1.0,
-    "allowed_one_way_turnover": 0.3,
-    "executed_one_way_turnover": 0.30000000000000004,
-    "turnover_scale_factor": 0.3,
+    "allowed_one_way_turnover": 0.35,
+    "executed_one_way_turnover": 0.35,
+    "turnover_scale_factor": 0.35,
     "rolling_annual_turnover_before_trade": 0.0,
-    "trigger_type": "TIME_BASED"
+    "trigger_type": "EMERGENCY_TREND"
   }
 }
