@@ -1,7 +1,7 @@
 {
   "model_role": "challenger",
   "target_diagnostics": {
-    "asof_date": "2026-11-23",
+    "asof_date": "2026-11-24",
     "selected_tickers": [
       "XLP",
       "XLE"
@@ -20,15 +20,15 @@
     "defensive_asset": "CASH",
     "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
     "risk_parity_weights": {
-      "XLP": 0.574127011569405,
-      "XLE": 0.4258729884305949
+      "XLP": 0.5669205690773113,
+      "XLE": 0.43307943092268875
     },
     "tilted_relative_weights": {
-      "XLP": 0.5860111214525753,
-      "XLE": 0.41398887854742483
+      "XLP": 0.5788582646895322,
+      "XLE": 0.42114173531046795
     },
     "sector_exposure_after_vol_target": 0.6,
-    "final_sector_exposure": 0.55,
+    "final_sector_exposure": 0.5499999999999997,
     "constraint_errors": []
   },
   "trade_diagnostics": {
@@ -39,5 +39,5 @@
     "rolling_annual_turnover_before_trade": 0.0,
     "trigger_type": "EMERGENCY_TREND"
   },
-  "generated_at": "2026-11-24T14:15:14.276467+08:00"
+  "generated_at": "2026-11-25T12:59:07.468214+08:00"
 }
