@@ -1,24 +1,24 @@
 # Industry Sector Rotation Backtest Report
 
-Period: 2025-10-24 to 2026-10-26
+Period: 2025-11-24 to 2026-11-24
 
 | Metric | Value |
 |---|---:|
-| strategy_cagr | 0.1085 |
-| spy_cagr | 0.1312 |
-| equal_weight_sector_cagr | 0.1549 |
-| strategy_excess_cagr_vs_spy | -0.0227 |
-| strategy_ann_vol | 0.0868 |
-| strategy_sharpe | 0.8957 |
-| strategy_sortino | 1.1576 |
-| strategy_max_drawdown | 0.0618 |
-| spy_max_drawdown | 0.0913 |
-| equal_weight_sector_max_drawdown | 0.0629 |
-| cumulative_one_way_turnover | 2.5000 |
-| trade_count | 9 |
+| strategy_cagr | 0.1339 |
+| spy_cagr | 0.0761 |
+| equal_weight_sector_cagr | 0.1460 |
+| strategy_excess_cagr_vs_spy | 0.0578 |
+| strategy_ann_vol | 0.1131 |
+| strategy_sharpe | 0.9117 |
+| strategy_sortino | 1.3114 |
+| strategy_max_drawdown | 0.0669 |
+| spy_max_drawdown | 0.1146 |
+| equal_weight_sector_max_drawdown | 0.0717 |
+| cumulative_one_way_turnover | 2.4964 |
+| trade_count | 10 |
 | cost_drag_total_nav_pct | 0.0037 |
 | scheduled_rebalances | 5 |
-| emergency_rebalances | 4 |
+| emergency_rebalances | 5 |
 
 Notes:
 - Signals are generated with a rolling train/validation split before each prediction date.
