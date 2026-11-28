@@ -1,9 +1,9 @@
 {
   "target_diagnostics": {
-    "asof_date": "2026-11-25",
+    "asof_date": "2026-11-27",
     "selected_tickers": [
       "XLI",
-      "XLK"
+      "XLV"
     ],
     "overlay": {
       "target_vol": 0.1,
@@ -18,15 +18,15 @@
     "defensive_asset": "CASH",
     "method": "Risk parity baseline with deterministic edge tilt, annualized volatility targeting, and constrained projection",
     "risk_parity_weights": {
-      "XLI": 0.6482741561443403,
-      "XLK": 0.3517258438556598
+      "XLI": 0.4902545193599453,
+      "XLV": 0.5097454806400546
     },
     "tilted_relative_weights": {
-      "XLI": 0.6593169567627074,
-      "XLK": 0.3406830432372927
+      "XLI": 0.5024508063983018,
+      "XLV": 0.49754919360169814
     },
-    "sector_exposure_after_vol_target": 0.38420905984577897,
-    "final_sector_exposure": 0.3842090598457789,
+    "sector_exposure_after_vol_target": 0.595169188154183,
+    "final_sector_exposure": 0.5951691881541828,
     "constraint_errors": []
   },
   "trade_diagnostics": {
